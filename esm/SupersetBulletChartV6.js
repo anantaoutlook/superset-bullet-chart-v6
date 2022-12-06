@@ -82,7 +82,23 @@ export default function SupersetBulletChartV6(props) {
       }));
     });
     return records;
-  }; // collect records for each uniqueCompanyPeriod
+  };
+
+  function createCompanyArray(data) {
+    var unique = [];
+    var distinct = [];
+
+    for (var i = 0; i < data.length; i++) {
+      if (data[i].company) {
+        if (!unique[data[i].company]) {
+          distinct.push(data[i]);
+          unique[data[i].company] = 1;
+        }
+      }
+    }
+
+    return distinct;
+  } // collect records for each uniqueCompanyPeriod
 
 
   var findRecordsForuniqueCompanyPeriod = (uniqueCompanyPeriod, yearAddedRecords) => {
@@ -103,6 +119,7 @@ export default function SupersetBulletChartV6(props) {
   };
 
   var recordsWithCompany = addYearToRecord(chartData.data);
+  var uniqueCompanies = createCompanyArray(recordsWithCompany);
   var companiesData = findRecordsForuniqueCompanyPeriod(uniqueCompanyPeriod, recordsWithCompany);
   useEffect(() => {
     setchartData({
@@ -121,25 +138,48 @@ export default function SupersetBulletChartV6(props) {
     orderDesc: props.orderDesc,
     bulletColorScheme: props.bulletColorScheme,
     data: convertCompanyDataToGridData(companiesData, creatUniqueYear(recordsWithCompany)),
-    years: creatUniqueYear(recordsWithCompany)
+    years: creatUniqueYear(recordsWithCompany),
+    companies: uniqueCompanies
   };
-  var panelBody = document.querySelector(".panel-body");
-
+  /* const panelBody = document.querySelector(".panel-body") as HTMLDivElement;
   if (panelBody) {
     panelBody.style.overflowY = "scroll";
+  } else {
+    const graphicDiv = document.querySelector("#graphic") as HTMLDivElement;
+    if (graphicDiv) {
+      graphicDiv.style.overflowY = "scroll";
+      graphicDiv.style.overflowX = "scroll";
+    }
+  } */
+
+  var graphicDiv = document.querySelector("#graphic");
+
+  if (graphicDiv) {
+    graphicDiv.style.overflowY = "scroll"; // graphicDiv.style.overflowX = "scroll";
   }
 
+  var allYears = creatUniqueYear(recordsWithCompany);
+  var autoString = 'auto '.repeat(allYears.length).trim();
+  var gridStyle = {
+    display: "grid",
+    gridTemplateColumns: autoString,
+    // gap: '10px',
+    alignItems: 'start',
+    alignContent: 'space-between',
+    justifyContent: 'space-around',
+    padding: '0px 0px 50px 0px',
+    height: props.height + 'px',
+    width: props.width + 'px'
+  };
+  var normalStyle = {
+    height: props.height + 'px',
+    width: props.width + 'px',
+    padding: '0px 0px 50px 0px'
+  };
+  var chartStyle = uniqueCompanies.length > 1 ? gridStyle : normalStyle;
   return /*#__PURE__*/React.createElement("div", {
     id: "graphic",
-    style: {
-      display: "grid",
-      gridTemplateColumns: "auto auto auto auto",
-      gap: '10px',
-      alignItems: 'start',
-      alignContent: 'space-between',
-      justifyContent: 'space-around',
-      padding: '5px 10px'
-    }
+    style: chartStyle
   }, /*#__PURE__*/React.createElement(BullectChart, {
     props: newProps
   }));

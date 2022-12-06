@@ -21,7 +21,8 @@ export default function BullectChart(props) {
         orderDesc: props.props.orderDesc,
         bulletColorScheme: props.props.bulletColorScheme,
         chartIndex: index,
-        years: props.props.years
+        years: props.props.years,
+        companies: props.props.companies
       };
       render(selectedDataset);
     });
@@ -77,9 +78,13 @@ export default function BullectChart(props) {
       f,
       margin,
       barHeight
-    } = config; // const w = selectedDataset.width;
+    } = config;
+    var w = selectedDataset.width;
 
-    var w = selectedDataset.width / (selectedDataset.years.length + 0.1);
+    if (selectedDataset.companies.length > 1) {
+      w = selectedDataset.width / (selectedDataset.years.length + 0.1);
+    }
+
     var h = selectedDataset.height;
     var halfBarHeight = barHeight; //
 

@@ -26,6 +26,7 @@ export default function BullectChart(props: any) {
         bulletColorScheme: props.props.bulletColorScheme,
         chartIndex: index,
         years: props.props.years,
+        companies: props.props.companies,
       };
       render(selectedDataset);
     });
@@ -81,11 +82,12 @@ export default function BullectChart(props: any) {
       barHeight: 20,
     };
     const { f, margin, barHeight } = config;
-    // const w = selectedDataset.width;
-    const w = selectedDataset.width / (selectedDataset.years.length + 0.1);
+    let w =  selectedDataset.width;
+    if(selectedDataset.companies.length > 1) {
+      w = (selectedDataset.width / (selectedDataset.years.length + 0.1));
+    }
     let h = selectedDataset.height;
     const halfBarHeight = barHeight;
-
     //
     const getMetricPossible = (data: any) => {
       const rectangles: any = selection.selectAll('rect') || null;

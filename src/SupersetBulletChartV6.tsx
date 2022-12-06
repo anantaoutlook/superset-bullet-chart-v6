@@ -39,7 +39,7 @@ import BullectChart from './plugin/bullet';
 export default function SupersetBulletChartV6(
   props: SupersetBulletChartV6Props,
 ) {
-    // height and width are the height and width of the DOM element as it exists in the dashboard.
+  // height and width are the height and width of the DOM element as it exists in the dashboard.
   // There is also a `data` prop, which is, of course, your DATA 🎉
 
   let [chartData, setchartData] = useState({
@@ -87,6 +87,20 @@ export default function SupersetBulletChartV6(
     return records;
   };
 
+  function createCompanyArray(data: any) {
+    const unique = [];
+    const distinct = [];
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].company) {
+        if (!unique[data[i].company]) {
+          distinct.push(data[i]);
+          unique[data[i].company] = 1;
+        }
+      }
+    }
+    return distinct;
+  }
+
   // collect records for each uniqueCompanyPeriod
   const findRecordsForuniqueCompanyPeriod = (
     uniqueCompanyPeriod: any,
@@ -109,6 +123,7 @@ export default function SupersetBulletChartV6(
     return records;
   };
   const recordsWithCompany = addYearToRecord(chartData.data);
+  const uniqueCompanies = createCompanyArray(recordsWithCompany);
   const companiesData = findRecordsForuniqueCompanyPeriod(
     uniqueCompanyPeriod,
     recordsWithCompany
@@ -132,16 +147,46 @@ export default function SupersetBulletChartV6(
     orderDesc: props.orderDesc,
     bulletColorScheme: props.bulletColorScheme,
     data: convertCompanyDataToGridData(companiesData, creatUniqueYear(recordsWithCompany)),
-    years: creatUniqueYear(recordsWithCompany)
+    years: creatUniqueYear(recordsWithCompany),
+    companies:uniqueCompanies
   };
-  const panelBody = document.querySelector(".panel-body") as HTMLDivElement;
+  /* const panelBody = document.querySelector(".panel-body") as HTMLDivElement;
   if (panelBody) {
     panelBody.style.overflowY = "scroll";
+  } else {
+    const graphicDiv = document.querySelector("#graphic") as HTMLDivElement;
+    if (graphicDiv) {
+      graphicDiv.style.overflowY = "scroll";
+      graphicDiv.style.overflowX = "scroll";
+    }
+  } */
+  const graphicDiv = document.querySelector("#graphic") as HTMLDivElement;
+  if (graphicDiv) {
+    graphicDiv.style.overflowY = "scroll";
+    // graphicDiv.style.overflowX = "scroll";
   }
-
+  const allYears = creatUniqueYear(recordsWithCompany);
+  const autoString = 'auto '.repeat(allYears.length).trim();
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: autoString,
+    // gap: '10px',
+    alignItems: 'start',
+    alignContent: 'space-between',
+    justifyContent: 'space-around',
+    padding: '0px 0px 50px 0px',
+    height: props.height + 'px',
+    width: props.width + 'px',
+  };
+  const normalStyle = {
+    height: props.height + 'px',
+    width: props.width + 'px',
+    padding: '0px 0px 50px 0px',
+  };
+  const chartStyle = uniqueCompanies.length > 1 ? gridStyle : normalStyle;
   return (
     <div id="graphic"
-      style={{ display: "grid", gridTemplateColumns: "auto auto auto auto", gap: '10px', alignItems: 'start', alignContent: 'space-between', justifyContent: 'space-around', padding: '5px 10px' }}
+      style={chartStyle}
     >
       <BullectChart props={newProps} />
     </div>
